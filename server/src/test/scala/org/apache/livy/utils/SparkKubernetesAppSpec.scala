@@ -19,14 +19,30 @@ package org.apache.livy.utils
 import java.util.Objects._
 
 import io.fabric8.kubernetes.api.model._
+import io.fabric8.kubernetes.client.KubernetesClient
 import org.mockito.Mockito.when
-import org.scalatest.FunSpec
+import org.scalatest.{BeforeAndAfterAll, FunSpec}
 import org.scalatest.mock.MockitoSugar._
 
 import org.apache.livy.{LivyBaseUnitTestSuite, LivyConf}
+class SparkKubernetesAppSpec extends FunSpec with LivyBaseUnitTestSuite with BeforeAndAfterAll {
 
-class SparkKubernetesAppSpec extends FunSpec with LivyBaseUnitTestSuite {
+     override def beforeAll(): Unit = {
+        super.beforeAll()
+        val livyConf = new LivyConf()
+        livyConf.set(LivyConf.KUBERNETES_POLL_INTERVAL, "500ms")
+        livyConf.set(LivyConf.KUBERNETES_APP_LEAKAGE_CHECK_INTERVAL, "100ms")
+        livyConf.set(LivyConf.KUBERNETES_APP_LEAKAGE_CHECK_TIMEOUT, "1000ms")
 
+          val client = mock[KubernetesClient]
+        SparkKubernetesApp.init(livyConf, Some(client))
+        SparkKubernetesApp.clearApps
+      }
+
+        override def afterAll(): Unit = {
+        super.afterAll()
+        assert(SparkKubernetesApp.getAppSize === 0)
+      }
   describe("KubernetesAppReport") {
     it("should return application state") {
       val status = when(mock[PodStatus].getPhase).thenReturn("Status").getMock[PodStatus]
