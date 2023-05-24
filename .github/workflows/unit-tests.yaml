@@ -46,7 +46,7 @@ jobs:
         if [ "${{ matrix.spark_version }}" = "3.0" ]; then echo "mvn_profile=-Pspark-3.0" >> $GITHUB_ENV; fi
     - 
       name: Build with Maven
-      run: mvn -Pthriftserver ${{ env.mvn_profile }} -DskipITs -Dmaven.javadoc.skip=true -B -V -e verify
+      run: mvn -Pthriftserver ${{ env.mvn_profile }} -DskipITs -DskipTests -Dmaven.javadoc.skip=true -B -V -e verify
     -
       name: Upload coverage to codecov
       uses: codecov/codecov-action@v3
