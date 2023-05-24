@@ -265,7 +265,7 @@ class SparkKubernetesApp private[utils](
            val msg = "No KUBERNETES application is found with tag " +
                 s"${appTag.toLowerCase}. This may be because " +
                 "1) spark-submit fail to submit application to KUBERNETES; " +
-                "or "+
+                "or " +
              "2) KUBERNETES cluster doesn't have enough" +
              " resource to start the application in time. " +
              "Please check Livy log and KUBERNETES log to know the details."
@@ -357,7 +357,7 @@ class SparkKubernetesApp private[utils](
              } catch {
                  // We cannot kill the Kubernetes app without the appTag.
                  // There's a chance the Kubernetes app
-                 //hasn't been submitted during a livy-server failure.
+                 // hasn't been submitted during a livy-server failure.
                  // We don't want a stuck session that can't be deleted. Emit a warning and move on.
                  case _: TimeoutException | _: InterruptedException =>
                     warn("Deleting a session while its Kubernetes application is not found.")
