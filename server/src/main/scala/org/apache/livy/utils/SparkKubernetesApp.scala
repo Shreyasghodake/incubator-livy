@@ -266,8 +266,8 @@ class SparkKubernetesApp private[utils](
                 s"${appTag.toLowerCase}. This may be because " +
                 "1) spark-submit fail to submit application to KUBERNETES; " +
                 "or "+
-             "2) KUBERNETES cluster doesn't have enough"+
-             " resource to start the application in time. "+
+             "2) KUBERNETES cluster doesn't have enough" +
+             " resource to start the application in time. " +
              "Please check Livy log and KUBERNETES log to know the details."
 
               error(s"Failed monitoring the app $appTag: $msg")
@@ -355,10 +355,10 @@ class SparkKubernetesApp private[utils](
                 withRetry(kubernetesClient.killApplication(
                     Await.result(appPromise.future, appLookupTimeout)))
              } catch {
-                // We cannot kill the Kubernetes app without the appTag.
-            // There's a chance the Kubernetes app
-            //hasn't been submitted during a livy-server failure.
-                // We don't want a stuck session that can't be deleted. Emit a warning and move on.
+                 // We cannot kill the Kubernetes app without the appTag.
+                 // There's a chance the Kubernetes app
+                 //hasn't been submitted during a livy-server failure.
+                 // We don't want a stuck session that can't be deleted. Emit a warning and move on.
                  case _: TimeoutException | _: InterruptedException =>
                     warn("Deleting a session while its Kubernetes application is not found.")
                 }
