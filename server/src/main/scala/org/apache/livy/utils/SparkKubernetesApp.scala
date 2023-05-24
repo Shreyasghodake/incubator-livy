@@ -135,17 +135,6 @@ object SparkKubernetesApp extends Logging {
     }
   }
 
-  private def initKubernetesAppMonitorThreadPool(livyConf: LivyConf): Unit = {
-    val poolSize = livyConf.getInt(LivyConf.KUBERNETES_APP_LOOKUP_THREAD_POOL_SIZE)
-    val KubernetesAppMonitorThreadPool: ExecutorService =
-      Executors.newFixedThreadPool(poolSize)
-
-    val runnable = new KubernetesAppMonitorRunnable()
-
-    for (_ <- 0 until poolSize) {
-      KubernetesAppMonitorThreadPool.execute(runnable)
-    }
-  }
 
   def getAppSize: Int = appQueue.size()
 
@@ -187,6 +176,17 @@ object SparkKubernetesApp extends Logging {
     initKubernetesAppMonitorThreadPool(livyConf)
   }
 
+  private def initKubernetesAppMonitorThreadPool(livyConf: LivyConf): Unit = {
+    val poolSize = livyConf.getInt(LivyConf.KUBERNETES_APP_LOOKUP_THREAD_POOL_SIZE)
+    val KubernetesAppMonitorThreadPool: ExecutorService =
+      Executors.newFixedThreadPool(poolSize)
+
+    val runnable = new KubernetesAppMonitorRunnable()
+
+    for (_ <- 0 until poolSize) {
+      KubernetesAppMonitorThreadPool.execute(runnable)
+    }
+  }
   // Returning T, throwing the exception on failure
   @tailrec
   private def withRetry[T](fn: => T, retries: Int = 3): T = {
@@ -265,8 +265,10 @@ class SparkKubernetesApp private[utils](
            val msg = "No KUBERNETES application is found with tag " +
                 s"${appTag.toLowerCase}. This may be because " +
                 "1) spark-submit fail to submit application to KUBERNETES; " +
-                "or 2) KUBERNETES cluster doesn't have enough resource to start the application in time. " +
-                "Please check Livy log and KUBERNETES log to know the details."
+                "or "+
+             "2) KUBERNETES cluster doesn't have enough"+
+             " resource to start the application in time. "+
+             "Please check Livy log and KUBERNETES log to know the details."
 
               error(s"Failed monitoring the app $appTag: $msg")
             kubernetesDiagnostics = ArrayBuffer(msg)
@@ -354,7 +356,8 @@ class SparkKubernetesApp private[utils](
                     Await.result(appPromise.future, appLookupTimeout)))
              } catch {
                 // We cannot kill the Kubernetes app without the appTag.
-                  // There's a chance the Kubernetes app hasn't been submitted during a livy-server failure.
+            // There's a chance the Kubernetes app
+            //hasn't been submitted during a livy-server failure.
                 // We don't want a stuck session that can't be deleted. Emit a warning and move on.
                  case _: TimeoutException | _: InterruptedException =>
                     warn("Deleting a session while its Kubernetes application is not found.")
