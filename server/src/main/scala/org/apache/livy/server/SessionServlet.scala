@@ -82,9 +82,9 @@ abstract class SessionServlet[S <: Session, R <: RecoveryMetadata](
   }
 
   val getSession = get("/:id") {
-    withUnprotectedSession { session =>
+//     withUnprotectedSession { session =>
       clientSessionView(session, request)
-    }
+//     }
   }
 
   get("/:id/state") {
