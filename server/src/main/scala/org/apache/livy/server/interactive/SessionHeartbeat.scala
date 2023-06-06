@@ -63,12 +63,12 @@ trait SessionHeartbeatNotifier[S <: Session with SessionHeartbeat, R <: Recovery
     }
   }
 
-   abstract override protected def withNewUnprotectedSession(fn: (S => Any)): Any = {
+  abstract override protected def withNewUnprotectedSession(fn: (S => Any)): Any = {
     super.withUnprotectedSession { s =>
       fn(s)
     }
   }
-   
+
   abstract override protected def withViewAccessSession(fn: (S => Any)): Any = {
     super.withViewAccessSession { s =>
       s.heartbeat()
