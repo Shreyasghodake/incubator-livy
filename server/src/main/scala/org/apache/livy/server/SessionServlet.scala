@@ -82,7 +82,7 @@ abstract class SessionServlet[S <: Session, R <: RecoveryMetadata](
   }
 
   val getSession = get("/:id") {
-    withViewAccessSession { session =>
+    withNewUnprotectedSession { session =>
       clientSessionView(session, request)
     }
   }
@@ -195,6 +195,8 @@ abstract class SessionServlet[S <: Session, R <: RecoveryMetadata](
    * information.
    */
   protected def withUnprotectedSession(fn: (S => Any)): Any = doWithSession(fn, true, None)
+  
+   protected def withNewUnprotectedSession(fn: (S => Any)): Any = doWithSession(fn, true, None)
 
   /**
    * Performs an operation on the session, verifying whether the caller has view access of the
