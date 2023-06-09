@@ -140,7 +140,7 @@ class LivyServer extends Logging {
       startKinitThread(launch_keytab, launch_principal)
     }
 
-    testRecovery(livyConf)
+    // testRecovery(livyConf)
 
     // Initialize YarnClient or KubernetesClient ASAP to save time.
     if (livyConf.isRunningOnYarn()) {
