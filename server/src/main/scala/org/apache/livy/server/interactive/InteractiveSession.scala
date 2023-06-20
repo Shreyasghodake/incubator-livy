@@ -45,6 +45,11 @@ import org.apache.livy.sessions.Session._
 import org.apache.livy.sessions.SessionState.Dead
 import org.apache.livy.utils._
 
+class RecoveryStatement(
+  st: Statement,
+  sessionId: Int  
+)
+
 @JsonIgnoreProperties(ignoreUnknown = true)
 case class InteractiveRecoveryMetadata(
     id: Int,
@@ -389,6 +394,8 @@ class InteractiveSession(
   with SparkAppListener {
 
   import InteractiveSession._
+  import org.slf4j.Logger;
+  import org.slf4j.LoggerFactory;
 
   private var serverSideState: SessionState = initialState
 
@@ -408,6 +415,7 @@ class InteractiveSession(
 
   override def start(): Unit = {
     sessionStore.save(RECOVERY_SESSION_TYPE, recoveryMetadata)
+    sessionStore.save(RECOVERY_SESSION_TYPE, recoveryStatement)
     heartbeat()
     app = mockApp.orElse {
       val driverProcess = client.flatMap { c => Option(c.getDriverProcess) }
@@ -454,6 +462,8 @@ class InteractiveSession(
             s"owner: $owner, proxyUser:" +
             s" $proxyUser, state: ${state.toString}, kind: ${kind.toString}, " +
             s"info: ${appInfo.asJavaMap}]")
+          // statements()
+          // Statement st = getStatement(0)  
         }
 
         private def errorOut(): Unit = {
@@ -478,6 +488,9 @@ class InteractiveSession(
   override def recoveryMetadata: RecoveryMetadata =
     InteractiveRecoveryMetadata(id, name, appId, appTag, kind,
       heartbeatTimeout.toSeconds.toInt, owner, None, proxyUser, rscDriverUri)
+
+  override def recoveryStatement: RecoveryStatement =
+    RecoveryStatement(id,getStatement(0))
 
   override def state: SessionState = {
     if (serverSideState == SessionState.Running) {
@@ -510,12 +523,18 @@ class InteractiveSession(
   def statements: IndexedSeq[Statement] = {
     ensureActive()
     val r = client.get.getReplJobResults().get()
+    info("statement is $r")
+    LoggerFactory.getLogger(getClass).info("value {}", r)
+    LoggerFactory.getLogger(getClass).debug("value {}", r)
     r.statements.toIndexedSeq
   }
 
   def getStatement(stmtId: Int): Option[Statement] = {
     ensureActive()
     val r = client.get.getReplJobResults(stmtId, 1).get()
+    info("statement is $r.statements")
+    LoggerFactory.getLogger(getClass).info("value {}", r.statements)
+    LoggerFactory.getLogger(getClass).debug("value {}", r.statements)
     if (r.statements.length < 1) {
       None
     } else {
