@@ -25,6 +25,7 @@ import scala.util.control.NonFatal
 
 import org.apache.livy.{LivyConf, Logging}
 import org.apache.livy.sessions.Session.RecoveryMetadata
+import org.apache.livy.server.interactive.RecoveryStatement
 
 private[recovery] case class SessionManagerState(nextSessionId: Int)
 
@@ -43,6 +44,10 @@ class SessionStore(
    * @param m RecoveryMetadata for the session.
    */
   def save(sessionType: String, m: RecoveryMetadata): Unit = {
+    store.set(sessionPath(sessionType, m.id), m)
+  }
+
+  def saveStatement(sessionType: String, m: RecoveryStatement): Unit = {
     store.set(sessionPath(sessionType, m.id), m)
   }
 

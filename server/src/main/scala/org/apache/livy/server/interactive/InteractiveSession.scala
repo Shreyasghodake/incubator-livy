@@ -415,7 +415,7 @@ class InteractiveSession(
 
   override def start(): Unit = {
     sessionStore.save(RECOVERY_SESSION_TYPE, recoveryMetadata)
-    sessionStore.save(RECOVERY_SESSION_TYPE, recoveryStatement)
+    sessionStore.saveStatement(RECOVERY_SESSION_TYPE, recoveryStatement)
     heartbeat()
     app = mockApp.orElse {
       val driverProcess = client.flatMap { c => Option(c.getDriverProcess) }
@@ -489,8 +489,7 @@ class InteractiveSession(
     InteractiveRecoveryMetadata(id, name, appId, appTag, kind,
       heartbeatTimeout.toSeconds.toInt, owner, None, proxyUser, rscDriverUri)
 
-  override def recoveryStatement: RecoveryStatement =
-    RecoveryStatement(id,getStatement(0))
+  def recoveryStatement: RecoveryStatement = RecoveryStatement(id, getStatement(0))
 
   override def state: SessionState = {
     if (serverSideState == SessionState.Running) {
