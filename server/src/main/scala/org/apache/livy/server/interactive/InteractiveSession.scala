@@ -464,7 +464,7 @@ class InteractiveSession(
             s" $proxyUser, state: ${state.toString}, kind: ${kind.toString}, " +
             s"info: ${appInfo.asJavaMap}]")
           // statements()
-          // Statement st = getStatement(0)  
+          // Statement st = getStatement(0) 
         }
 
         private def errorOut(): Unit = {

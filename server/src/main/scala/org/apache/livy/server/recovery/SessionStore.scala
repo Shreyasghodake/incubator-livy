@@ -24,8 +24,8 @@ import scala.util.{Failure, Success, Try}
 import scala.util.control.NonFatal
 
 import org.apache.livy.{LivyConf, Logging}
-import org.apache.livy.sessions.Session.RecoveryMetadata
 import org.apache.livy.server.interactive.RecoveryStatement
+import org.apache.livy.sessions.Session.RecoveryMetadata
 
 private[recovery] case class SessionManagerState(nextSessionId: Int)
 
