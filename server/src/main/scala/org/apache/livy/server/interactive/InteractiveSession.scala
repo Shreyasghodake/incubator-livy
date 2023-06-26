@@ -45,10 +45,11 @@ import org.apache.livy.sessions.Session._
 import org.apache.livy.sessions.SessionState.Dead
 import org.apache.livy.utils._
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 class RecoveryStatement(
   st: Statement,
   sessionId: Int  
-)
+) extends RecoveryMetadata
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 case class InteractiveRecoveryMetadata(
@@ -489,7 +490,7 @@ class InteractiveSession(
     InteractiveRecoveryMetadata(id, name, appId, appTag, kind,
       heartbeatTimeout.toSeconds.toInt, owner, None, proxyUser, rscDriverUri)
 
-  def recoveryStatement: RecoveryStatement = RecoveryStatement(id, getStatement(0))
+  override def recoveryStatement: RecoveryMetadata = RecoveryStatement(id, getStatement(0))
 
   override def state: SessionState = {
     if (serverSideState == SessionState.Running) {
