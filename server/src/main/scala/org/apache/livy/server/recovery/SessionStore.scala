@@ -47,7 +47,7 @@ class SessionStore(
     store.set(sessionPath(sessionType, m.id), m)
   }
 
-  def saveStatement(sessionType: String, m: RecoveryStatement): Unit = {
+  def saveStatement(sessionType: String, m: RecoveryMetadata): Unit = {
     store.set(sessionPath(sessionType, m.id), m)
   }
 

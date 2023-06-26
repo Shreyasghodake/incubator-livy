@@ -46,7 +46,8 @@ import org.apache.livy.sessions.SessionState.Dead
 import org.apache.livy.utils._
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-class RecoveryStatement(
+case class RecoveryStatement(
+  id: Int,
   st: Statement,
   sessionId: Int  
 ) extends RecoveryMetadata
