@@ -49,7 +49,6 @@ import org.apache.livy.utils._
 case class RecoveryStatement(
   id: Int,
   st: Statement,
-  sessionId: Int  
 ) extends RecoveryMetadata
 
 @JsonIgnoreProperties(ignoreUnknown = true)
