@@ -101,6 +101,27 @@ class FileSystemStateStore(
     }
   }
 
+  def setStatemet(key: String, value: Object): Unit = {
+    // Write to a temp file then rename to avoid file corruption if livy-server crashes
+    // in the middle of the write.
+    val tmpPath = absPath(s"$key.tmp.statement")
+    val createFlag = util.EnumSet.of(CreateFlag.CREATE, CreateFlag.Appe)
+
+    usingResource(fileContext.create(tmpPath, createFlag, CreateOpts.createParent())) { tmpFile =>
+      tmpFile.write(serializeToBytes(value))
+      tmpFile.close()
+      // Assume rename is atomic.
+      fileContext.rename(tmpPath, absPath(key), Rename.OVERWRITE)
+    }
+
+    try {
+      val crcPath = new Path(tmpPath.getParent, s".${tmpPath.getName}.crc.statement")
+      fileContext.delete(crcPath, false)
+    } catch {
+      case NonFatal(e) => // Swallow the exception.
+    }
+  }
+
   override def get[T: ClassTag](key: String): Option[T] = {
     try {
       usingResource(fileContext.open(absPath(key))) { is =>
@@ -110,6 +131,19 @@ class FileSystemStateStore(
       case _: FileNotFoundException => None
       case e: IOException =>
         warn(s"Failed to read $key from state store.", e)
+        None
+    }
+  }
+
+  override def getStatement [T: ClassTag](key: String): Option[T] = {
+    try {
+      usingResource(fileContext.open(absPath(key))) { is =>
+        Option(deserialize[T](IOUtils.toByteArray(is)))
+      }
+    } catch {
+      case _: FileNotFoundException => None
+      case e: IOException =>
+        warn(s"Failed to read $key  from state store.", e)
         None
     }
   }

@@ -55,8 +55,8 @@ class InteractiveSessionSpec extends FunSpec
   private val accessManager = new AccessManager(livyConf)
 
   private def createSession(
-      sessionStore: SessionStore = mock[SessionStore],
-      mockApp: Option[SparkApp] = None): InteractiveSession = {
+    sessionStore: SessionStore = mock[SessionStore],
+    mockApp: Option[SparkApp] = None): InteractiveSession = {
     assume(sys.env.get("SPARK_HOME").isDefined, "SPARK_HOME is not set.")
 
     val req = new CreateInteractiveRequest()
@@ -163,6 +163,26 @@ class InteractiveSessionSpec extends FunSpec
       session.start()
 
       val expectedAppId = "APPID"
+      session.appIdKnown(expectedAppId)
+      session.appId shouldEqual Some(expectedAppId)
+
+      val expectedAppInfo = AppInfo(Some("DRIVER LOG URL"), Some("SPARK UI URL"))
+      session.infoChanged(expectedAppInfo)
+      session.appInfo shouldEqual expectedAppInfo
+
+      verify(sessionStore, atLeastOnce()).save(
+        MockitoMatchers.eq(InteractiveSession.RECOVERY_SESSION_TYPE), anyObject())
+
+      session.state should (be(SessionState.Starting) or be(SessionState.Idle))
+    }
+
+    it("appId") {
+      val mockApp = mock[SparkApp]
+      val sessionStore = mock[SessionStore]
+      session = createSession(sessionStore, Some(mockApp))
+      session.start()
+
+      val expectedAppId = "AppId"
       session.appIdKnown(expectedAppId)
       session.appId shouldEqual Some(expectedAppId)
 
