@@ -105,7 +105,7 @@ class FileSystemStateStore(
     // Write to a temp file then rename to avoid file corruption if livy-server crashes
     // in the middle of the write.
     val tmpPath = absPath(s"$key.tmp.statement")
-    val createFlag = util.EnumSet.of(CreateFlag.CREATE, CreateFlag.Appe)
+    val createFlag = util.EnumSet.of(CreateFlag.CREATE, CreateFlag.APPEND)
 
     usingResource(fileContext.create(tmpPath, createFlag, CreateOpts.createParent())) { tmpFile =>
       tmpFile.write(serializeToBytes(value))
