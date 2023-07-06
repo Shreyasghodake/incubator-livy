@@ -48,7 +48,7 @@ class SessionStore(
   }
 
   def saveStatement(sessionType: String, m: RecoveryMetadata): Unit = {
-    LoggerFactory.getLogger(getClass).info("Inside save statement {}", sessionType)
+    // LoggerFactory.getLogger(getClass).info("Inside save statement {}", sessionType)
     store.set(sessionPath(sessionType, m.id), m)
   }
 
