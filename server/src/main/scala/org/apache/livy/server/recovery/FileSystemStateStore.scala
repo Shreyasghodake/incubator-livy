@@ -135,7 +135,7 @@ class FileSystemStateStore(
     }
   }
 
-  override def getStatement [T: ClassTag](key: String): Option[T] = {
+  def getStatement [T: ClassTag](key: String): Option[T] = {
     try {
       usingResource(fileContext.open(absPath(key))) { is =>
         Option(deserialize[T](IOUtils.toByteArray(is)))
