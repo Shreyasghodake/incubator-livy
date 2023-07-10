@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-FROM ubuntu:xenial
+FROM ubuntu:Focal 
 
 # configure locale
 RUN apt-get update -qq > /dev/null && apt-get install -qq --yes --no-install-recommends \

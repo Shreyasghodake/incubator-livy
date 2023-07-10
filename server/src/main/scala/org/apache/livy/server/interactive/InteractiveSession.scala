@@ -416,7 +416,7 @@ class InteractiveSession(
 
   override def start(): Unit = {
     sessionStore.save(RECOVERY_SESSION_TYPE, recoveryMetadata)
-    sessionStore.saveStatement(RECOVERY_SESSION_TYPE, recoveryStatement, getStatement(0))
+    sessionStore.saveStatement(RECOVERY_SESSION_TYPE, recoveryStatement, 0)
     heartbeat()
     app = mockApp.orElse {
       val driverProcess = client.flatMap { c => Option(c.getDriverProcess) }
