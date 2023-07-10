@@ -47,9 +47,9 @@ class SessionStore(
     store.set(sessionPath(sessionType, m.id), m)
   }
 
-  def saveStatement(sessionType: String, m: RecoveryMetadata,n:Int): Unit = {
+  def saveStatement(sessionType: String, m: RecoveryMetadata, n:Int): Unit = {
     // LoggerFactory.getLogger(getClass).info("Inside save statement {}", sessionType)
-    store.set(sessionPath(sessionType, m.id,n), m)
+    store.set(sessionPath(sessionType, m.id, n), m)
   }
 
   def saveNextSessionId(sessionType: String, id: Int): Unit = {
@@ -100,6 +100,6 @@ class SessionStore(
   private def sessionPath(sessionType: String, id: Int): String =
     s"$STORE_VERSION/$sessionType/$id"
 
-  private def sessionPath(sessionType: String, id: Int,n: Int): String =
+  private def sessionPath(sessionType: String, id: Int, n: Int): String =
     s"$STORE_VERSION/$sessionType/$id.$n"
 }
