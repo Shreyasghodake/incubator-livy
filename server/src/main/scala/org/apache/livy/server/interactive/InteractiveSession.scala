@@ -416,7 +416,6 @@ class InteractiveSession(
 
   override def start(): Unit = {
     sessionStore.save(RECOVERY_SESSION_TYPE, recoveryMetadata)
-    sessionStore.saveStatement(RECOVERY_SESSION_TYPE, recoveryStatement, 0)
     heartbeat()
     app = mockApp.orElse {
       val driverProcess = client.flatMap { c => Option(c.getDriverProcess) }
@@ -490,7 +489,7 @@ class InteractiveSession(
     InteractiveRecoveryMetadata(id, name, appId, appTag, kind,
       heartbeatTimeout.toSeconds.toInt, owner, None, proxyUser, rscDriverUri)
 
-  def recoveryStatement: RecoveryMetadata = RecoveryStatement(id, getStatement(0))
+  def recoveryStatement: RecoveryMetadata = RecoveryStatement(id, statement())
 
   override def state: SessionState = {
     if (serverSideState == SessionState.Running) {
@@ -505,7 +504,9 @@ class InteractiveSession(
   override def stopSession(): Unit = {
     try {
       transition(SessionState.ShuttingDown)
+      sessionStore.saveStatement(RECOVERY_SESSION_TYPE, recoveryStatement, id)
       sessionStore.remove(RECOVERY_SESSION_TYPE, id)
+      
       client.foreach { _.stop(true) }
       // We need to call #kill here explicitly to delete Interactive pods from the cluster
       if (livyConf.isRunningOnKubernetes()) app.foreach(_.kill())
@@ -549,7 +550,7 @@ class InteractiveSession(
   def executeStatement(content: ExecuteRequest): Statement = {
     ensureRunning()
     recordActivity()
-
+    sessionStore.saveStatement(RECOVERY_SESSION_TYPE, recoveryStatement, id)    
     val id = client.get.submitReplCode(content.code, content.kind.orNull).get
     client.get.getReplJobResults(id, 1).get().statements(0)
   }
@@ -557,6 +558,7 @@ class InteractiveSession(
   def cancelStatement(statementId: Int): Unit = {
     ensureRunning()
     recordActivity()
+    sessionStore.saveStatement(RECOVERY_SESSION_TYPE, recoveryStatement, id)
     client.get.cancelReplCode(statementId)
   }
 
@@ -674,6 +676,7 @@ class InteractiveSession(
         case SparkApp.State.KILLED => transition(SessionState.Killed())
         case _ =>
       }
+      sessionStore.saveStatement(RECOVERY_SESSION_TYPE, recoveryStatement, id)
     }
   }
 

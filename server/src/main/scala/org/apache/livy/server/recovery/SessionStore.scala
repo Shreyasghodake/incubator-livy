@@ -91,6 +91,10 @@ class SessionStore(
     store.remove(sessionPath(sessionType, id))
   }
 
+  def removeStatements(sessionType: String, id: Int): Unit = {
+    store.remove(sessionPath(sessionType, id))
+  }
+
   private def sessionManagerPath(sessionType: String): String =
     s"$STORE_VERSION/$sessionType/state"
 

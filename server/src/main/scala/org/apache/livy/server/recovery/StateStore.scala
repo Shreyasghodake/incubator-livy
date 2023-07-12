@@ -71,6 +71,8 @@ abstract class StateStore(livyConf: LivyConf) extends JsonMapper {
    * @throws Exception Throw when persisting the state store fails.
    */
   def remove(key: String): Unit
+
+  def removeStatatements(key: String): Unit
 }
 
 /**
