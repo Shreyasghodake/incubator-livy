@@ -489,7 +489,7 @@ class InteractiveSession(
     InteractiveRecoveryMetadata(id, name, appId, appTag, kind,
       heartbeatTimeout.toSeconds.toInt, owner, None, proxyUser, rscDriverUri)
 
-//  def recoveryStatement: RecoveryMetadata = RecoveryStatement(id, statement())
+  def recoveryStatement: RecoveryMetadata = RecoveryStatement(id, statement())
 
   override def state: SessionState = {
     if (serverSideState == SessionState.Running) {
@@ -504,7 +504,7 @@ class InteractiveSession(
   override def stopSession(): Unit = {
     try {
       transition(SessionState.ShuttingDown)
-      sessionStore.saveStatement(RECOVERY_SESSION_TYPE, recoveryStatement, id)
+      // sessionStore.saveStatement(RECOVERY_SESSION_TYPE, recoveryStatement, id)
       sessionStore.remove(RECOVERY_SESSION_TYPE, id)
       
       client.foreach { _.stop(true) }
