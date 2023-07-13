@@ -489,7 +489,7 @@ class InteractiveSession(
     InteractiveRecoveryMetadata(id, name, appId, appTag, kind,
       heartbeatTimeout.toSeconds.toInt, owner, None, proxyUser, rscDriverUri)
 
-  def recoveryStatement: RecoveryMetadata = RecoveryStatement(id, statement())
+  // def recoveryStatement: RecoveryMetadata = RecoveryStatement(id, statement())
 
   override def state: SessionState = {
     if (serverSideState == SessionState.Running) {
