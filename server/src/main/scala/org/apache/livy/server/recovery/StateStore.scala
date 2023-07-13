@@ -72,7 +72,7 @@ abstract class StateStore(livyConf: LivyConf) extends JsonMapper {
    */
   def remove(key: String): Unit
 
-  def removeStatatements(key: String): Unit
+  // def removeStatatements(key: String): Unit
 }
 
 /**
