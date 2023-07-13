@@ -550,7 +550,7 @@ class InteractiveSession(
   def executeStatement(content: ExecuteRequest): Statement = {
     ensureRunning()
     recordActivity()
-    sessionStore.saveStatement(RECOVERY_SESSION_TYPE, recoveryStatement, id)    
+    // sessionStore.saveStatement(RECOVERY_SESSION_TYPE, recoveryStatement, id)    
     val id = client.get.submitReplCode(content.code, content.kind.orNull).get
     client.get.getReplJobResults(id, 1).get().statements(0)
   }
@@ -558,7 +558,7 @@ class InteractiveSession(
   def cancelStatement(statementId: Int): Unit = {
     ensureRunning()
     recordActivity()
-    sessionStore.saveStatement(RECOVERY_SESSION_TYPE, recoveryStatement, id)
+    // sessionStore.saveStatement(RECOVERY_SESSION_TYPE, recoveryStatement, id)
     client.get.cancelReplCode(statementId)
   }
 
@@ -663,7 +663,7 @@ class InteractiveSession(
   override def appIdKnown(appId: String): Unit = {
     _appId = Option(appId)
     sessionSaveLock.synchronized {
-      sessionStore.save(RECOVERY_SESSION_TYPE, recoveryMetadata)
+      // sessionStore.save(RECOVERY_SESSION_TYPE, recoveryMetadata)
     }
   }
 
@@ -676,7 +676,7 @@ class InteractiveSession(
         case SparkApp.State.KILLED => transition(SessionState.Killed())
         case _ =>
       }
-      sessionStore.saveStatement(RECOVERY_SESSION_TYPE, recoveryStatement, id)
+      // sessionStore.saveStatement(RECOVERY_SESSION_TYPE, recoveryStatement, id)
     }
   }
 
