@@ -506,7 +506,6 @@ class InteractiveSession(
       transition(SessionState.ShuttingDown)
       // sessionStore.saveStatement(RECOVERY_SESSION_TYPE, recoveryStatement, id)
       sessionStore.remove(RECOVERY_SESSION_TYPE, id)
-      
       client.foreach { _.stop(true) }
       // We need to call #kill here explicitly to delete Interactive pods from the cluster
       if (livyConf.isRunningOnKubernetes()) app.foreach(_.kill())
@@ -550,7 +549,6 @@ class InteractiveSession(
   def executeStatement(content: ExecuteRequest): Statement = {
     ensureRunning()
     recordActivity()
-    // sessionStore.saveStatement(RECOVERY_SESSION_TYPE, recoveryStatement, id)    
     val id = client.get.submitReplCode(content.code, content.kind.orNull).get
     client.get.getReplJobResults(id, 1).get().statements(0)
   }
