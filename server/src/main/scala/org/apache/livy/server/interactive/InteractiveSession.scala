@@ -674,7 +674,17 @@ class InteractiveSession(
         case SparkApp.State.KILLED => transition(SessionState.Killed())
         case _ =>
       }
-      sessionStore.saveStatement(RECOVERY_SESSION_TYPE, recoveryStatement, id)
+      try
+      {
+        sessionStore.saveStatement(RECOVERY_SESSION_TYPE, recoveryStatement, id)
+      }
+      catch
+      {
+        case x: NullPointerException =>
+        {
+          LoggerFactory.getLogger(getClass).info("value {} {} {}", RECOVERY_SESSION_TYPE, recoveryStatement, id)
+        }
+      }
     }
   }
 
