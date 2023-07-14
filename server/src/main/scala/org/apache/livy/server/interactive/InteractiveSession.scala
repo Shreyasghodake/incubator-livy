@@ -676,13 +676,13 @@ class InteractiveSession(
       }
       try
       {
-        sessionStore.saveStatement(RECOVERY_SESSION_TYPE, recoveryStatement, id)
+        sessionStore.saveStatement(RECOVERY_SESSION_TYPE, recoveryStatement, 0)
       }
       catch
       {
         case x: NullPointerException =>
         {
-          LoggerFactory.getLogger(getClass).info("value {} {} {}", RECOVERY_SESSION_TYPE, recoveryStatement, id)
+          LoggerFactory.getLogger(getClass).info("value {} ", recoveryStatement)
         }
       }
     }
