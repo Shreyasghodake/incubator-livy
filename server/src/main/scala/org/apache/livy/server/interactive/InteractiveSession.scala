@@ -674,7 +674,7 @@ class InteractiveSession(
         case SparkApp.State.KILLED => transition(SessionState.Killed())
         case _ =>
       }
-      // sessionStore.saveStatement(RECOVERY_SESSION_TYPE, recoveryStatement, id)
+      sessionStore.saveStatement(RECOVERY_SESSION_TYPE, recoveryStatement, id)
     }
   }
 
