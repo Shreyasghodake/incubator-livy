@@ -676,7 +676,7 @@ class InteractiveSession(
       }
       try
       {
-        if ( recoveryStatement.st != null ) {
+        if ( recoveryStatement.id != 0 ) {
           sessionStore.saveStatement(RECOVERY_SESSION_TYPE, recoveryStatement, 0)
         }
       }
