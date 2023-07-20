@@ -676,9 +676,9 @@ class InteractiveSession(
       }
       try
       {
-        if ( recoveryStatement.st != null ) {
-          sessionStore.saveStatement(RECOVERY_SESSION_TYPE, recoveryStatement, 0)
-        }
+        // if ( recoveryStatement.id != null ) {
+        sessionStore.saveStatement(RECOVERY_SESSION_TYPE, recoveryStatement, 0)
+        // }
       }
       catch
       {
