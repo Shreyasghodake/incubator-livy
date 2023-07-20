@@ -676,7 +676,7 @@ class InteractiveSession(
       }
       try
       {
-        if ( newState == SparkApp.State.FINISHED or newState == SparkApp.State.FAILED) {
+        if ( newState == SparkApp.State.FINISHED || newState == SparkApp.State.FAILED) {
           sessionStore.saveStatement(RECOVERY_SESSION_TYPE, recoveryStatement, 0)
         }
       }
