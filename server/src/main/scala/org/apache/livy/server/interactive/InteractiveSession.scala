@@ -551,19 +551,6 @@ class InteractiveSession(
     recordActivity()
     val id = client.get.submitReplCode(content.code, content.kind.orNull).get
     client.get.getReplJobResults(id, 1).get().statements(0)
-    try
-      {
-        // if ( recoveryStatement.id != null ) {
-        sessionStore.saveStatement(RECOVERY_SESSION_TYPE, recoveryStatement, 0)
-        // }
-      }
-    catch
-      {
-        case x: NullPointerException =>
-        {
-          LoggerFactory.getLogger(getClass).info("value {} ", recoveryStatement)
-        }
-      }
   }
 
   def cancelStatement(statementId: Int): Unit = {
@@ -687,7 +674,19 @@ class InteractiveSession(
         case SparkApp.State.KILLED => transition(SessionState.Killed())
         case _ =>
       }
-      
+      try
+      {
+        if ( newState == SparkApp.State.FINISHED or newState == SparkApp.State.FAILED) {
+          sessionStore.saveStatement(RECOVERY_SESSION_TYPE, recoveryStatement, 0)
+        }
+      }
+      catch
+      {
+        case x: NullPointerException =>
+        {
+          LoggerFactory.getLogger(getClass).info("value {} ", recoveryStatement)
+        }
+      }
     }
   }
 
