@@ -676,9 +676,9 @@ class InteractiveSession(
       }
       try
       {
-        if ( newState == SparkApp.State.FINISHED || newState == SparkApp.State.FAILED) {
-          sessionStore.saveStatement(RECOVERY_SESSION_TYPE, recoveryStatement, 0)
-        }
+        // if ( newState == SparkApp.State.FINISHED || newState == SparkApp.State.FAILED) {
+        sessionStore.saveStatement(RECOVERY_SESSION_TYPE, recoveryStatement, 0)
+        // }
       }
       catch
       {
