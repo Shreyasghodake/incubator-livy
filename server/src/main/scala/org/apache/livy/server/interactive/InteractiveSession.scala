@@ -677,7 +677,9 @@ class InteractiveSession(
       try
       {
         // if ( newState == SparkApp.State.FINISHED || newState == SparkApp.State.FAILED) {
-        // sessionStore.saveStatement(RECOVERY_SESSION_TYPE, recoveryStatement, 0)
+        LoggerFactory.getLogger(getClass).info("value {} ", recoveryStatement)
+        Thread.sleep(1000)
+        sessionStore.saveStatement(RECOVERY_SESSION_TYPE, recoveryStatement, 0)
         // }
       }
       catch
