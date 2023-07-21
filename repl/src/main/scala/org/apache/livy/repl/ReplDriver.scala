@@ -77,7 +77,7 @@ class ReplDriver(conf: SparkConf, livyConf: RSCConf)
     } else {
       assert(msg.from != null)
       assert(msg.size != null)
-      if (msg.size == 1 && session.statements != null) {
+      if (msg != null && msg.size == 1 && session != null && session.statements != null) {
         session.statements.get(msg.from).toArray
       } else {
         val until = msg.from + msg.size
