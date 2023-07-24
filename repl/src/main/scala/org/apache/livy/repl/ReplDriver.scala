@@ -74,23 +74,42 @@ class ReplDriver(conf: SparkConf, livyConf: RSCConf)
   def handle(ctx: ChannelHandlerContext, msg: BaseProtocol.GetReplJobResults): ReplJobResults = {
     val statements = if (msg.allResults) {
       session.statements.values.toArray
+      statements.foreach { s =>
+        s.updateProgress(session.progressOfStatement(s.id))
+      }
+
+      new ReplJobResults(statements.sortBy(_.id))
     } else {
       assert(msg.from != null)
       assert(msg.size != null)
-      if (msg != null && msg.size == 1 && session != null && session.statements != null) {
-        session.statements.get(msg.from).toArray
-      } else {
-        val until = msg.from + msg.size
-        session.statements.filterKeys(id => id >= msg.from && id < until).values.toArray
+      try {
+        if (msg != null && msg.size == 1 && session != null && session.statements != null) {
+          session.statements.get(msg.from).toArray
+        } else {
+          val until = msg.from + msg.size
+          session.statements.filterKeys(id => id >= msg.from && id < until).values.toArray
+        }
+        statements.foreach { s =>
+        s.updateProgress(session.progressOfStatement(s.id))
       }
+      new ReplJobResults(statements.sortBy(_.id))
+      }
+      catch {
+        case _: Exception =>
+          warn(s"Exception")
+      }
+      statements.foreach { s =>
+        s.updateProgress(session.progressOfStatement(s.id))
+      }
+      new ReplJobResults(statements.sortBy(_.id))
     }
 
     // Update progress of statements when queried
-    statements.foreach { s =>
-      s.updateProgress(session.progressOfStatement(s.id))
-    }
+    // statements.foreach { s =>
+    //   s.updateProgress(session.progressOfStatement(s.id))
+    // }
 
-    new ReplJobResults(statements.sortBy(_.id))
+    // new ReplJobResults(statements.sortBy(_.id))
   }
 
   override protected def createWrapper(msg: BaseProtocol.BypassJobRequest): BypassJobWrapper = {
