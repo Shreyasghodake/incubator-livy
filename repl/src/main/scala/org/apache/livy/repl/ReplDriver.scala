@@ -81,7 +81,9 @@ class ReplDriver(conf: SparkConf, livyConf: RSCConf)
         session.statements.get(msg.from).toArray
       } else {
         val until = msg.from + msg.size
-        session.statements.filterKeys(id => id >= msg.from && id < until).values.toArray
+        if (session.statements != null) {
+          session.statements.filterKeys(id => id >= msg.from && id < until).values.toArray
+        }
       }
     }
     // Update progress of statements when queried
