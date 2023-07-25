@@ -95,68 +95,64 @@ class ReplDriver(conf: SparkConf, livyConf: RSCConf)
         }
       }
     }
+    // Update progress of statements when queried
+    statements.foreach { s =>
+      s.updateProgress(session.progressOfStatement(s.id))
+    }
+    new ReplJobResults(statements.sortBy(_.id))
   }
 
-  // Update progress of statements when queried
-  statements.foreach { s =>
-    s.updateProgress(session.progressOfStatement(s.id))
+  override protected def createWrapper(msg: BaseProtocol.BypassJobRequest): BypassJobWrapper = {
+    Kind(msg.jobType) match {
+      case PySpark if session.interpreter(PySpark).isDefined =>
+        new BypassJobWrapper(this, msg.id,
+          new BypassPySparkJob(msg.serializedJob,
+            session.interpreter(PySpark).get.asInstanceOf[PythonInterpreter]))
+      case _ => super.createWrapper(msg)
+    }
   }
-  new ReplJobResults(statements.sortBy(_.id))
-}
 
-override protected def createWrapper (msg: BaseProtocol.BypassJobRequest): BypassJobWrapper = {
-  Kind (msg.jobType) match {
-  case PySpark if session.interpreter (PySpark).isDefined =>
-  new BypassJobWrapper (this, msg.id,
-  new BypassPySparkJob (msg.serializedJob,
-  session.interpreter (PySpark).get.asInstanceOf[PythonInterpreter] ) )
-  case _ => super.createWrapper (msg)
-}
-}
+  override protected def addFile(path: String): Unit = {
+    if (!ClientConf.TEST_MODE) {
+      require(kind != null)
+      session.interpreter(kind) match {
+        case Some(interpreter) => {
+          interpreter match {
+            case pi: PythonInterpreter => pi.addFile(path)
+            case _ => super.addFile(path)
+          }
+        }
+        case None => super.addFile(path)
+      }
+    }
+    super.addFile(path)
+  }
 
-  override protected def addFile (path: String): Unit = {
-  if (! ClientConf.TEST_MODE) {
-  require (kind != null)
-  session.interpreter (kind) match {
-  case Some (interpreter) => {
-  interpreter match {
-  case pi: PythonInterpreter => pi.addFile (path)
-  case _ => super.addFile (path)
-}
-}
-  case None => super.addFile (path)
-}
-}
-  super.addFile (path)
-}
+  override protected def addJarOrPyFile(path: String): String = {
+    if (!ClientConf.TEST_MODE) {
+      require(kind != null)
+      session.interpreter(kind) match {
+        case Some(interpreter) => {
+          interpreter match {
+            case pi: PythonInterpreter => pi.addPyFile(this, conf, path)
+            case si: SparkInterpreter => {
+              val localCopy = s"file://${super.addJarOrPyFile(path)}"
+              si.addJar(localCopy)
+              localCopy
+            }
+            case _ => super.addJarOrPyFile(path)
+          }
+        }
+        case None => super.addJarOrPyFile(path)
+      }
+    } else {
+      super.addJarOrPyFile(path)
+    }
+  }
 
-  override protected def addJarOrPyFile (path: String): String = {
-  if (! ClientConf.TEST_MODE) {
-  require (kind != null)
-  session.interpreter (kind) match {
-  case Some (interpreter) => {
-  interpreter match {
-  case pi: PythonInterpreter => pi.addPyFile (this, conf, path)
-  case si: SparkInterpreter => {
-  val localCopy = s"file://${
-  super.addJarOrPyFile (path)
-}"
-  si.addJar (localCopy)
-  localCopy
-}
-  case _ => super.addJarOrPyFile (path)
-}
-}
-  case None => super.addJarOrPyFile (path)
-}
-} else {
-  super.addJarOrPyFile (path)
-}
-}
-
-  override protected def onClientAuthenticated (client: Rpc): Unit = {
-  if (session != null) {
-  client.call (new ReplState (session.state.toString) )
-}
-}
+  override protected def onClientAuthenticated(client: Rpc): Unit = {
+    if (session != null) {
+      client.call(new ReplState(session.state.toString))
+    }
+  }
 }
