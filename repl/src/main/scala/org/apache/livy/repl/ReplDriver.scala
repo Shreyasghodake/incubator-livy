@@ -85,13 +85,7 @@ class ReplDriver(conf: SparkConf, livyConf: RSCConf)
           session.statements.filterKeys(id => id >= msg.from && id < until).values.toArray
         }
         else {
-          try {
-            session.statements.filterKeys(id => id >= msg.from && id < until).values.toArray
-          }
-          catch {
-            case _: Exception =>
-              warn(s"Exception")
-          }
+          return null
         }
       }
     }
