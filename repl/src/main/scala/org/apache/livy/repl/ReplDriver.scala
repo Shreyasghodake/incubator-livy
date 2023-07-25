@@ -33,7 +33,7 @@ import org.apache.livy.sessions._
 
 class ReplDriver(conf: SparkConf, livyConf: RSCConf)
   extends RSCDriver(conf, livyConf)
-  with Logging {
+    with Logging {
 
   private[repl] var session: Session = _
 
@@ -77,13 +77,11 @@ class ReplDriver(conf: SparkConf, livyConf: RSCConf)
     } else {
       assert(msg.from != null)
       assert(msg.size != null)
-      try {
-        if (msg != null && msg.size == 1 && session != null && session.statements != null) {
-          session.statements.get(msg.from).toArray
-        } else {
-          val until = msg.from + msg.size
-          session.statements.filterKeys(id => id >= msg.from && id < until).values.toArray
-        }
+      if (msg != null && msg.size == 1 && session != null && session.statements != null) {
+        session.statements.get(msg.from).toArray
+      } else {
+        val until = msg.from + msg.size
+        session.statements.filterKeys(id => id >= msg.from && id < until).values.toArray
       }
     }
     // Update progress of statements when queried
