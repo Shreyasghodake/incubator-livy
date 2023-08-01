@@ -35,7 +35,6 @@ import org.apache.livy.client.common.HttpMessages._
 import org.apache.livy.server.{AccessManager, SessionServlet}
 import org.apache.livy.server.recovery.SessionStore
 import org.apache.livy.sessions._
-//import org.apache.livy.server.interactive.StatementStore
 
 object InteractiveSessionServlet extends Logging
 
