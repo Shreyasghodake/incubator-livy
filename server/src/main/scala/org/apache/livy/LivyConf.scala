@@ -196,6 +196,7 @@ object LivyConf {
    * zookeeper: Store state in a Zookeeper instance.
    */
   val RECOVERY_STATE_STORE = Entry("livy.server.recovery.state-store", null)
+  val STATEMENT_STORE = Entry("livy.server.interactive.statement-store", null)
   /**
    * For filesystem state store, the path of the state store directory. Please don't use a
    * filesystem that doesn't support atomic rename (e.g. S3). e.g. file:///tmp/livy or hdfs:///.

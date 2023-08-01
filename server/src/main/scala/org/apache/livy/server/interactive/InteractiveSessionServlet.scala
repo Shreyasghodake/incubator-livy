@@ -35,18 +35,18 @@ import org.apache.livy.client.common.HttpMessages._
 import org.apache.livy.server.{AccessManager, SessionServlet}
 import org.apache.livy.server.recovery.SessionStore
 import org.apache.livy.sessions._
+import org.apache.livy.server.interactive.StatementStore
 
 object InteractiveSessionServlet extends Logging
 
 class InteractiveSessionServlet(
-    sessionManager: InteractiveSessionManager,
-    sessionStore: SessionStore,
-    livyConf: LivyConf,
-    accessManager: AccessManager)
+                                 sessionManager: InteractiveSessionManager,
+                                 sessionStore: SessionStore,
+                                 livyConf: LivyConf,
+                                 accessManager: AccessManager)
   extends SessionServlet(sessionManager, livyConf, accessManager)
-  with SessionHeartbeatNotifier[InteractiveSession, InteractiveRecoveryMetadata]
-  with FileUploadSupport
-{
+    with SessionHeartbeatNotifier[InteractiveSession, InteractiveRecoveryMetadata]
+    with FileUploadSupport {
 
   mapper.registerModule(new SessionKindModule())
     .registerModule(new Json4sScalaModule())
@@ -73,12 +73,12 @@ class InteractiveSessionServlet(
   }
 
   override protected[interactive] def clientSessionView(
-      session: InteractiveSession,
-      req: HttpServletRequest): Any = {
+                                                         session: InteractiveSession,
+                                                         req: HttpServletRequest): Any = {
     val logs =
       if (accessManager.hasViewAccess(session.owner,
-                                      effectiveUser(req),
-                                      session.proxyUser.getOrElse(""))) {
+        effectiveUser(req),
+        session.proxyUser.getOrElse(""))) {
         Option(session.logLines())
           .map { lines =>
             val size = 10
@@ -121,6 +121,12 @@ class InteractiveSessionServlet(
       }
       val from = params.get("from").map(_.toInt).getOrElse(0)
       val size = params.get("size").map(_.toInt).getOrElse(statements.length)
+      val st = new StatementStore(livyConf)
+
+      st.set("file1", Map(
+        "total_statements" -> statements.length,
+        "statements" -> statements
+      ))
 
       Map(
         "total_statements" -> statements.length,
@@ -177,12 +183,12 @@ class InteractiveSessionServlet(
   jpost[SerializedJob]("/:id/submit-job") { req =>
     withModifyAccessSession { session =>
       try {
-      require(req.job != null && req.job.length > 0, "no job provided.")
-      val jobId = session.submitJob(req.job, req.jobType)
-      Created(new JobStatus(jobId, JobHandle.State.SENT, null, null))
+        require(req.job != null && req.job.length > 0, "no job provided.")
+        val jobId = session.submitJob(req.job, req.jobType)
+        Created(new JobStatus(jobId, JobHandle.State.SENT, null, null))
       } catch {
         case e: Throwable =>
-        throw e
+          throw e
       }
     }
   }

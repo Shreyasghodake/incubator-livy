@@ -49,6 +49,19 @@ class SessionStore(
 
   def saveStatement(sessionType: String, m: RecoveryMetadata, n: Int): Unit = {
     // LoggerFactory.getLogger(getClass).info("Inside save statement {}", sessionType)
+//    val order = params.get("order")
+//    val statements = if (order.map(_.trim).exists(_.equalsIgnoreCase("desc"))) {
+//      session.statements.reverse
+//    } else {
+//      session.statements
+//    }
+//    val from = params.get("from").map(_.toInt).getOrElse(0)
+//    val size = params.get("size").map(_.toInt).getOrElse(statements.length)
+//
+//    Map(
+//      "total_statements" -> statements.length,
+//      "statements" -> statements.view(from, from + size)
+//    )
     store.set(sessionPath(sessionType, m.id, n), m)
   }
 
