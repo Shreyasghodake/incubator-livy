@@ -108,6 +108,8 @@ class InteractiveSessionServlet(
       val size = params.get("size").map(_.toInt).getOrElse(statements.length)
       val st = new StatementStore(livyConf)
 
+      val errorArray = statements.filter(_.output.status == "error")
+
       st.set("file1", Map(
         "total_statements" -> statements.length,
         "statements" -> statements
