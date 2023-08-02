@@ -80,7 +80,8 @@ class StatementStore(livyConf: LivyConf) extends Logging {
     val tmpPath = absPath(s"$key.tmp")
     val createFlag = util.EnumSet.of(CreateFlag.CREATE, CreateFlag.OVERWRITE)
 
-    // usingResource(fileContext.create(tmpPath, createFlag, CreateOpts.createParent())) { tmpFile =>
+    // usingResource(fileContext.create(tmpPath, createFlag, CreateOpts.createParent()))
+    // { tmpFile =>
     try {
       val tmpFile = fileContext.create(tmpPath, createFlag, CreateOpts.createParent())
       tmpFile.write(serializeToBytes(value))
