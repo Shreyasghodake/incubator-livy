@@ -86,7 +86,7 @@ class StatementStore(livyConf: LivyConf) extends Logging {
       tmpFile.write(serializeToBytes(value))
       tmpFile.close()
       // Assume rename is atomic.
-      fileContext.rename(tmpPath, absPath(fileName), Rename.OVERWRITE)
+      fileContext.rename(tmpPath, absPath("file1"), Rename.OVERWRITE)
     } catch {
       case e: Exception => logger.error("Exception ", e)
     }
