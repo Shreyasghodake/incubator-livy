@@ -80,12 +80,23 @@ class StatementStore(livyConf: LivyConf) extends Logging {
     val tmpPath = absPath(s"$key.tmp")
     val createFlag = util.EnumSet.of(CreateFlag.CREATE, CreateFlag.OVERWRITE)
 
-    usingResource(fileContext.create(tmpPath, createFlag, CreateOpts.createParent())) { tmpFile =>
+    // usingResource(fileContext.create(tmpPath, createFlag, CreateOpts.createParent())) { tmpFile =>
+    try {
+      val tmpFile = fileContext.create(tmpPath, createFlag, CreateOpts.createParent())
       tmpFile.write(serializeToBytes(value))
       tmpFile.close()
       // Assume rename is atomic.
-      fileContext.rename(tmpPath, absPath(key), Rename.OVERWRITE)
+      fileContext.rename(tmpPath, absPath(fileName), Rename.OVERWRITE)
+    } catch {
+      case e: Exception => logger.error("Exception ", e)
     }
+
+
+    // tmpFile.write(serializeToBytes(value))
+    // tmpFile.close()
+    // // Assume rename is atomic.
+    // fileContext.rename(tmpPath, absPath(key), Rename.OVERWRITE)
+    // }
 
     try {
       val crcPath = new Path(tmpPath.getParent, s".${tmpPath.getName}.crc")
