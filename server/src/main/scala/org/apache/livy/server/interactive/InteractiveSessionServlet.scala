@@ -108,10 +108,7 @@ class InteractiveSessionServlet(
       val size = params.get("size").map(_.toInt).getOrElse(statements.length)
       val st = new StatementStore(livyConf)
 
-       val errorArray = statements.filter(p => {
-         var temp = toJson(p.output)
-         return temp.status == "error"
-       })
+      val errorArray = statements.filter(toJson(_.output).status == "error")
 
       st.set("file1", Map(
         "total_statements" -> statements.length,
@@ -122,13 +119,15 @@ class InteractiveSessionServlet(
       NoContent()
     }
   }
+
   private def toJson(obj: Any): Any = {
-      if (obj != null && obj != (())) {
-        mapper.writeValueAsBytes(obj)
-      } else {
-        null
-      }
+    if (obj != null && obj != (())) {
+      mapper.writeValueAsBytes(obj)
+    } else {
+      null
     }
+  }
+
   post("/:id/interrupt") {
     withModifyAccessSession { session =>
       Await.ready(session.interrupt(), Duration.Inf)
