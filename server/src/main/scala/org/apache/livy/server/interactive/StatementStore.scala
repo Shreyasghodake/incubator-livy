@@ -22,9 +22,8 @@ import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import java.net.URI
 import java.util
 import scala.util.control.NonFatal
-
-import org.apache.hadoop.fs.Options.{CreateOpts, Rename}
 import org.apache.hadoop.fs._
+import org.apache.hadoop.fs.Options.{CreateOpts, Rename}
 
 import org.apache.livy.{LivyConf, Logging}
 import org.apache.livy.Utils.usingResource
