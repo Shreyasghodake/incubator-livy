@@ -109,7 +109,7 @@ class InteractiveSessionServlet(
       val st = new StatementStore(livyConf)
 
       //      val errorArray = statements.filter( toJson(p=> toJson(p.output).status == "error")
-//      val errorArray = statements.filter(p => {toJson(p.output).status == "error"})
+//      val errorArray = statements.filter(p => {toJson(p.output). == "error"})
 
       st.set("file1", Map(
         "total_statements" -> statements.length,

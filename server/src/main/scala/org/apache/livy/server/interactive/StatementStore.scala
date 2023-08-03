@@ -19,20 +19,57 @@ package org.apache.livy.server.interactive
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
+import org.apache.hadoop.fs.Options.{CreateOpts, Rename}
+import org.apache.hadoop.fs._
+import org.apache.hadoop.fs.permission.{FsAction, FsPermission}
+import org.apache.livy.sessions.SessionKindModule
+import org.apache.livy.{LivyConf, Logging}
+
+import java.io.IOException
 import java.net.URI
 import java.util
-import org.apache.hadoop.fs._
-import org.apache.hadoop.fs.Options.{CreateOpts, Rename}
 import scala.util.control.NonFatal
 
-import org.apache.livy.{LivyConf, Logging}
-import org.apache.livy.Utils.usingResource
-import org.apache.livy.sessions.SessionKindModule
 
 class StatementStore(livyConf: LivyConf) extends Logging {
   protected val mapper = new ObjectMapper()
     .registerModule(DefaultScalaModule)
     .registerModule(new SessionKindModule())
+
+  def this() {
+    val fsPath = livyConf.get(LivyConf.STATEMENT_STORE)
+    require(fsPath != null && !fsPath.isEmpty,
+      s"Please config ${LivyConf.STATEMENT_STORE.key}.")
+    new URI(fsPath)
+
+    val fileContext: FileContext = FileContext.getFileContext(fsUri)
+
+    // Only Livy user should have access to state files.
+    fileContext.setUMask(new FsPermission("077"))
+
+    // Create state store dir if it doesn't exist.
+    val stateStorePath = absPath(".")
+    try {
+      fileContext.mkdir(stateStorePath, FsPermission.getDirDefault(), true)
+    } catch {
+      case _: FileAlreadyExistsException =>
+        if (!fileContext.getFileStatus(stateStorePath).isDirectory()) {
+          throw new IOException(s"$stateStorePath is not a directory.")
+        }
+    }
+
+    // Check permission of state store dir.
+    val fileStatus = fileContext.getFileStatus(absPath("."))
+    require(fileStatus.getPermission.getUserAction() == FsAction.ALL,
+      s"Livy doesn't have permission to access state store: $fsUri.")
+    if (fileStatus.getPermission.getGroupAction != FsAction.NONE) {
+      warn(s"Group users have permission to access state store: $fsUri. This is insecure.")
+    }
+    if (fileStatus.getPermission.getOtherAction != FsAction.NONE) {
+      warn(s"Other users have permission to access state store: $fsUri. This is in secure.")
+    }
+
+  }
 
   def serializeToBytes(value: Object): Array[Byte] = mapper.writeValueAsBytes(value)
 
@@ -42,36 +79,7 @@ class StatementStore(livyConf: LivyConf) extends Logging {
       s"Please config ${LivyConf.STATEMENT_STORE.key}.")
     new URI(fsPath)
   }
-  //  private val fileContext: FileContext = mockFileContext.getOrElse {
-  //    FileContext.getFileContext(fsUri)
-  //  }
 
-  //  {
-  //    // Only Livy user should have access to state files.
-  //    fileContext.setUMask(new FsPermission("077"))
-  //
-  //    // Create state store dir if it doesn't exist.
-  //    val stateStorePath = absPath(".")
-  //    try {
-  //      fileContext.mkdir(stateStorePath, FsPermission.getDirDefault(), true)
-  //    } catch {
-  //      case _: FileAlreadyExistsException =>
-  //        if (!fileContext.getFileStatus(stateStorePath).isDirectory()) {
-  //          throw new IOException(s"$stateStorePath is not a directory.")
-  //        }
-  //    }
-  //
-  //    // Check permission of state store dir.
-  //    val fileStatus = fileContext.getFileStatus(absPath("."))
-  //    require(fileStatus.getPermission.getUserAction() == FsAction.ALL,
-  //      s"Livy doesn't have permission to access state store: $fsUri.")
-  //    if (fileStatus.getPermission.getGroupAction != FsAction.NONE) {
-  //      warn(s"Group users have permission to access state store: $fsUri. This is insecure.")
-  //    }
-  //    if (fileStatus.getPermission.getOtherAction != FsAction.NONE) {
-  //      warn(s"Other users have permission to access state store: $fsUri. This is in secure.")
-  //    }
-  //  }
 
   def set(key: String, value: Object): Unit = {
     val fileContext = FileContext.getFileContext(fsUri)
