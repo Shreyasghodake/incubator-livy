@@ -19,25 +19,22 @@ package org.apache.livy.server.interactive
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
-import org.apache.hadoop.fs.Options.{CreateOpts, Rename}
-import org.apache.hadoop.fs._
-import org.apache.hadoop.fs.permission.{FsAction, FsPermission}
-import org.apache.livy.sessions.SessionKindModule
-import org.apache.livy.{LivyConf, Logging}
-
-import java.io.IOException
 import java.net.URI
 import java.util
+import org.apache.hadoop.fs._
+import org.apache.hadoop.fs.Options.{CreateOpts, Rename}
 import scala.util.control.NonFatal
 
+import org.apache.livy.{LivyConf, Logging}
+import org.apache.livy.Utils.usingResource
+import org.apache.livy.sessions.SessionKindModule
 
 class StatementStore(livyConf: LivyConf) extends Logging {
   protected val mapper = new ObjectMapper()
     .registerModule(DefaultScalaModule)
     .registerModule(new SessionKindModule())
 
-  def init()
-  {
+  def init() {
     val fsPath = livyConf.get(LivyConf.STATEMENT_STORE)
     require(fsPath != null && !fsPath.isEmpty,
       s"Please config ${LivyConf.STATEMENT_STORE.key}.")
