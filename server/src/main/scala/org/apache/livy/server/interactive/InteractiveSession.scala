@@ -503,6 +503,13 @@ class InteractiveSession(
 
   override def stopSession(): Unit = {
     try {
+      val st = new StatementStore(livyConf)
+
+      st.set("sessions" + id, Map(
+        "total_statements" -> statements.length,
+        "statements" -> statements
+      ))
+
       transition(SessionState.ShuttingDown)
       // sessionStore.saveStatement(RECOVERY_SESSION_TYPE, recoveryStatement, id)
       sessionStore.remove(RECOVERY_SESSION_TYPE, id)

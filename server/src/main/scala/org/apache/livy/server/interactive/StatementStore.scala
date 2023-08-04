@@ -36,7 +36,8 @@ class StatementStore(livyConf: LivyConf) extends Logging {
     .registerModule(DefaultScalaModule)
     .registerModule(new SessionKindModule())
 
-  def this() {
+  def init()
+  {
     val fsPath = livyConf.get(LivyConf.STATEMENT_STORE)
     require(fsPath != null && !fsPath.isEmpty,
       s"Please config ${LivyConf.STATEMENT_STORE.key}.")
