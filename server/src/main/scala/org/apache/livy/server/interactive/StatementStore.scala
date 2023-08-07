@@ -19,15 +19,19 @@ package org.apache.livy.server.interactive
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
+
 import java.net.URI
 import java.util
 import org.apache.hadoop.fs._
 import org.apache.hadoop.fs.Options.{CreateOpts, Rename}
-import scala.util.control.NonFatal
+import org.apache.hadoop.fs.permission.{FsAction, FsPermission}
 
+import scala.util.control.NonFatal
 import org.apache.livy.{LivyConf, Logging}
 import org.apache.livy.Utils.usingResource
 import org.apache.livy.sessions.SessionKindModule
+
+import java.io.IOException
 
 class StatementStore(livyConf: LivyConf) extends Logging {
   protected val mapper = new ObjectMapper()
