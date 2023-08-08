@@ -17,13 +17,12 @@
 
 package org.apache.livy.server.interactive
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import java.io.IOException
 import java.net.URI
 import java.util
 import scala.util.control.NonFatal
-
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import org.apache.hadoop.fs._
 import org.apache.hadoop.fs.Options.{CreateOpts, Rename}
 import org.apache.hadoop.fs.permission.{FsAction, FsPermission}
