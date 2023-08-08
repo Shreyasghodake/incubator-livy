@@ -23,13 +23,13 @@ import java.io.IOException
 import java.net.URI
 import java.util
 import scala.util.control.NonFatal
+
 import org.apache.hadoop.fs._
 import org.apache.hadoop.fs.Options.{CreateOpts, Rename}
 import org.apache.hadoop.fs.permission.{FsAction, FsPermission}
 
 import org.apache.livy.{LivyConf, Logging}
 import org.apache.livy.sessions.SessionKindModule
-
 
 class StatementStore(livyConf: LivyConf) extends Logging {
   protected val mapper = new ObjectMapper()
